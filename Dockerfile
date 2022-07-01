@@ -7,7 +7,12 @@ LABEL Author="Thuy Dinh" Description="A comprehensive docker image to run PHP-8.
 ARG PHP_VERSION=8.1
 ENV DATE_TIMEZONE=UTC \
   DEBIAN_FRONTEND=noninteractive \
-  PHP_VERSION=8.1
+  PHP_VERSION=8.1 \
+  NODE_VERSION=18.4.0 \
+  NVM_DIR=/root/.nvm
+
+# Set the SHELL to bash with pipefail option
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # docker-php-ext-*
 RUN sed -i 's|http://|http://vn.|g' /etc/apt/sources.list
@@ -53,24 +58,33 @@ RUN groupadd -g 1000 dev
 RUN useradd -u 1000 -ms /bin/bash -g dev -p $(openssl passwd -1 dev) dev
 RUN echo 'root:Docker!' | chpasswd
 
+#### PHP ####
 # overwriding php.ini
 COPY ./conf.d/app-fpm.ini /etc/php/8.1/fpm/conf.d/
 # config fpm overwriding www.conf
 COPY ./php-fpm.d/ /etc/php/8.1/fpm/pool.d/
 #COPY ./conf.d/${ENV}/* /etc/php8.1/conf.d/
 
-RUN mkdir -p /run/php-fpm /var/tmp/php-fpm
+RUN mkdir -p /run/php-fpm /var/tmp/php-fpm /usr/local/.nvm
 RUN chown dev:dev -R /run/php-fpm /var/tmp/php-fpm/
-RUN chmod 777 -R /run/php-fpm /var/tmp/php-fpm/
-
-
+RUN chmod 777 -R /run/php-fpm /var/tmp/php-fpm/ /usr/local/.nvm
 
 COPY ext.php /ext.php
 COPY docker-php-ext-disable.sh /usr/local/bin/docker-php-ext-disable
 RUN php -e /ext.php
 
+#### NVM - NODEJS ####
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
+ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+RUN node --version
+RUN npm --version
 
 EXPOSE 9000
-CMD ["php"]
-CMD ["php8.1"]
-
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["php-fpm8.1", "-y", "/etc/php/8.1/fpm/php-fpm.conf", "-R"]
+CMD ["/bin/bash"]
