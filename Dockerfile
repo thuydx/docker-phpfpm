@@ -61,6 +61,7 @@ RUN echo 'root:Docker!' | chpasswd
 #### PHP ####
 # overwriding php.ini
 COPY ./conf.d/app-fpm.ini /etc/php/8.1/fpm/conf.d/
+COPY ./conf.d/app-xdebug.ini /etc/php/8.1/fpm/conf.d/
 # config fpm overwriding www.conf
 COPY ./php-fpm.d/ /etc/php/8.1/fpm/pool.d/
 #COPY ./conf.d/${ENV}/* /etc/php8.1/conf.d/
