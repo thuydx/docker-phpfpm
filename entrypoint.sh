@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 echo  "[INFO] HOSTNAME:$HOSTNAME, PUID:$PUID, PGID:$PGID, TZ:$TZ"
 echo " bash version: "
 bash --version | head -n 1

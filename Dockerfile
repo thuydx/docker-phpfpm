@@ -35,7 +35,9 @@ RUN apt-get update && apt-get -y install && \
         bash \
         make \
         strace \
+        openssh-server \
         sudo
+
 RUN apt-get -y install php${PHP_VERSION} \
     php${PHP_VERSION}-fpm php${PHP_VERSION}-cli php${PHP_VERSION}-common php${PHP_VERSION}-mysql \
     php${PHP_VERSION}-zip php${PHP_VERSION}-gd php${PHP_VERSION}-mbstring php${PHP_VERSION}-curl php${PHP_VERSION}-xml \
@@ -55,7 +57,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add user for application
 RUN groupadd -g 1000 dev
-RUN useradd -u 1000 -ms /bin/bash -g dev -p $(openssl passwd -1 dev) dev
+RUN useradd -u 1000 -ms /bin/bash -g dev -G sudo -p $(openssl passwd -1 dev) dev
 RUN echo 'root:Docker!' | chpasswd
 
 #### PHP ####
@@ -66,13 +68,22 @@ COPY ./conf.d/app-xdebug.ini /etc/php/8.1/fpm/conf.d/
 COPY ./php-fpm.d/ /etc/php/8.1/fpm/pool.d/
 #COPY ./conf.d/${ENV}/* /etc/php8.1/conf.d/
 
-RUN mkdir -p /run/php-fpm /var/tmp/php-fpm /usr/local/.nvm
-RUN chown dev:dev -R /run/php-fpm /var/tmp/php-fpm/
-RUN chmod 777 -R /run/php-fpm /var/tmp/php-fpm/ /usr/local/.nvm
+RUN mkdir -p /run/php-fpm /var/tmp/php-fpm /usr/local/.nvm /var/log/xdebug /var/run/sshd /root/.ssh
+
+RUN chown dev:dev -R /run/php-fpm /var/tmp/php-fpm/ /var/log/xdebug
+RUN chmod 777 -R /run/php-fpm /var/tmp/php-fpm/ /usr/local/.nvm /var/log/xdebug
+
+RUN chown root -R /var/run/sshd /run/sshd /root/.ssh
+RUN chmod 744 -R /var/run/sshd /run/sshd /root/.ssh
+
+
+RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 
 COPY ext.php /ext.php
 COPY docker-php-ext-disable.sh /usr/local/bin/docker-php-ext-disable
 RUN php -e /ext.php
+
 
 #### NVM - NODEJS ####
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
@@ -83,9 +94,10 @@ ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN node --version
 RUN npm --version
 
-EXPOSE 9000 9003
+EXPOSE 9000 9003 22
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["php-fpm8.1", "-y", "/etc/php/8.1/fpm/php-fpm.conf", "-R"]
 CMD ["/bin/bash"]
+CMD ["/usr/sbin/sshd", "-D"]
