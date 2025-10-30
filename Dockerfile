@@ -1,14 +1,15 @@
 FROM ubuntu:22.04
 
-MAINTAINER Thuy Dinh <thuydx@zendgroup.vn>
-LABEL Author="Thuy Dinh" Description="A comprehensive docker image to run PHP-8.1.7 applications like Wordpress, Laravel, etc"
+LABEL maintainer="Thuy Dinh <thuydx@zendgroup.vn>" \
+      author="Thuy Dinh" \
+      description="A comprehensive docker image to run PHP-8.4.2 applications like Wordpress, Laravel, etc"
 
 # Stop dpkg-reconfigure tzdata from prompting for input
-ARG PHP_VERSION=8.1
+ARG PHP_VERSION=8.4
 ENV DATE_TIMEZONE=UTC \
   DEBIAN_FRONTEND=noninteractive \
-  PHP_VERSION=8.1 \
-  NODE_VERSION=18.4.0 \
+  PHP_VERSION=8.4 \
+  NODE_VERSION=25.1.0 \
   NVM_DIR=/root/.nvm
 
 # Set the SHELL to bash with pipefail option
@@ -62,11 +63,11 @@ RUN echo 'root:Docker!' | chpasswd
 
 #### PHP ####
 # overwriding php.ini
-COPY ./conf.d/app-fpm.ini /etc/php/8.1/fpm/conf.d/
-COPY ./conf.d/app-xdebug.ini /etc/php/8.1/fpm/conf.d/
+COPY ./conf.d/app-fpm.ini /etc/php/8.4/fpm/conf.d/
+COPY ./conf.d/app-xdebug.ini /etc/php/8.4/fpm/conf.d/
 # config fpm overwriding www.conf
-COPY ./php-fpm.d/ /etc/php/8.1/fpm/pool.d/
-#COPY ./conf.d/${ENV}/* /etc/php8.1/conf.d/
+COPY ./php-fpm.d/ /etc/php/8.4/fpm/pool.d/
+#COPY ./conf.d/${ENV}/* /etc/php8.4/conf.d/
 
 RUN mkdir -p /run/php-fpm /var/tmp/php-fpm /usr/local/.nvm /var/log/xdebug /var/run/sshd /root/.ssh
 
@@ -86,7 +87,7 @@ RUN php -e /ext.php
 
 
 #### NVM - NODEJS ####
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
 RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
 RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
@@ -98,6 +99,5 @@ EXPOSE 9000 9003 22
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["php-fpm8.1", "-y", "/etc/php/8.1/fpm/php-fpm.conf", "-R"]
-CMD ["/bin/bash"]
-CMD ["/usr/sbin/sshd", "-D"]
+# Move to use CMD on EntryPoint script
+# CMD ["php-fpm8.4", "-y", "/etc/php/8.4/fpm/php-fpm.conf", "-R"]
