@@ -29,8 +29,9 @@ RUN sed -i 's|http://archive.ubuntu.com|http://vn.archive.ubuntu.com|g' /etc/apt
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Update pip and install cryptography and pyjwt
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3
-RUN pip install --no-cache-dir --upgrade cryptography pyjwt
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3 && \
+    pip install --no-cache-dir --root-user-action=ignore --upgrade "setuptools<81" && \
+    pip install --no-cache-dir --upgrade cryptography pyjwt
 
 # ----------------------------------------------------------------------
 # 2️⃣ Composer
