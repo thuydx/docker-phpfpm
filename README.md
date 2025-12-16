@@ -1,4 +1,4 @@
-# Docker PHP8.1-FPM
+# Docker PHP8.5-FPM
 # docker-phpfpm
 Docker PHP FPM with lean ubuntu 22.04 base.
 
@@ -6,7 +6,7 @@ Docker PHP FPM with lean ubuntu 22.04 base.
 To pull latest image:
 
 ```sh
-docker pull thuydx/phpfpm:8.1
+docker pull thuydx/phpfpm:8.5
 ```
 
 To use in docker-compose
@@ -16,7 +16,7 @@ version: '3'
 
 services:
   phpfpm:
-    image: thuydx/phpfpm:8.1
+    image: thuydx/phpfpm:8.5
     container_name: phpfpm
     volumes:
       - ./path/to/your/app:/var/www/html
@@ -29,13 +29,13 @@ services:
 ```
 To use in docker-file
 ```Dockerfile
-FROM thuydx/phpfpm:8.1
+FROM thuydx/phpfpm:8.5
 ```
 
 ### Extensions
-The following PHP extensions are installed in `thuydx/phpfpm:8.1`:
+The following PHP extensions are installed in `thuydx/phpfpm:8.5`:
 ```
-PHP: 8.1.7
+PHP: 8.5.0
 Total: 73
 - apcu              - ast               - bcmath            - bz2
 - calendar          - core              - ctype             - curl
@@ -63,4 +63,4 @@ Disable extensions you won't need. You can add as much as you want separated by 
 RUN docker-php-ext-disable xdebug pcov ldap
 ```
 
-> `docker-php-ext-disable` is shell script available in `thuydx/phpfpm:8.1` only and not in official PHP docker images.
+> `docker-php-ext-disable` is shell script available in `thuydx/phpfpm:8.5` only and not in official PHP docker images.

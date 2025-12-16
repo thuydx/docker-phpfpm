@@ -9,7 +9,7 @@ set -e
 PUID=${PUID:-1000}
 PGID=${PGID:-1000}
 TZ=${TZ:-UTC}
-PHP_VERSION=${PHP_VERSION:-8.4}
+PHP_VERSION=${PHP_VERSION:-8.5}
 PHP_FPM_BIN="php-fpm${PHP_VERSION}"
 PHP_FPM_CONF="/etc/php/${PHP_VERSION}/fpm/php-fpm.conf"
 PHP_RUN_DIR="/run/php-fpm"
