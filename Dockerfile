@@ -2,10 +2,10 @@ FROM ubuntu:24.04
 
 LABEL maintainer="Thuy Dinh <thuydx@zendgroup.vn>" \
       author="Thuy Dinh" \
-      description="Optimized PHP-FPM 8.5 + Node.js 25 + Composer image"
+      description="Optimized PHP-FPM 8.5.2 + Node.js 25.5.0 + Composer image"
 
 ARG PHP_VERSION=8.5
-ARG NODE_VERSION=25.1.0
+ARG NODE_VERSION=25.5.0
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=UTC \
     NVM_DIR=/usr/local/nvm \
@@ -18,7 +18,11 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ----------------------------------------------------------------------
 RUN sed -i 's|http://archive.ubuntu.com|http://vn.archive.ubuntu.com|g' /etc/apt/sources.list && \
     apt-get update && apt-get -y upgrade && apt-get autoremove -y && apt-get clean && \
-    apt-get install -y --no-install-recommends software-properties-common curl ca-certificates gnupg lsb-release && \
+    apt-get install -y --no-install-recommends  \
+    software-properties-common  \
+    curl ca-certificates gnupg  \
+    lsb-release  \
+    apt-transport-https && \
     LC_ALL=C.UTF-8 && \
     add-apt-repository ppa:ondrej/php -y && \
     apt-get update && apt-get install -y --no-install-recommends \
@@ -43,7 +47,7 @@ RUN curl -sSL https://getcomposer.org/installer | php -- --install-dir=/usr/loca
 # ----------------------------------------------------------------------
 # 3️⃣ Node.js (via NVM)
 # ----------------------------------------------------------------------
-ENV NODE_VERSION=25.2.1
+ENV NODE_VERSION=25.5.0
 ENV NVM_DIR=/usr/local/nvm
 
 RUN apt-get update && apt-get install -y curl ca-certificates libatomic1 && \
