@@ -6,6 +6,7 @@ LABEL maintainer="Thuy Dinh <thuydx@zendgroup.vn>" \
 
 ARG PHP_VERSION=8.5
 ARG NODE_VERSION=25.5.0
+ENV NODE_VERSION=25.5.0
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=UTC \
     NVM_DIR=/usr/local/nvm \
@@ -93,5 +94,5 @@ RUN groupadd -g 1001 dev && useradd -u 1001 -ms /bin/bash -g dev dev
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 9000 9003 22
+EXPOSE 9000 9003
 ENTRYPOINT ["/entrypoint.sh"]
